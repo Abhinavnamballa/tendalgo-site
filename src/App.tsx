@@ -1,8 +1,9 @@
 import './App.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 function App() {
   const [isSticky, setIsSticky] = useState(false);
+  const sectionsRef = useRef<HTMLElement[]>([]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -14,6 +15,49 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate');
+            // Animate child elements with delay
+            const children = entry.target.querySelectorAll('.vision-card, .market-info, .market-image, .product-card, .team-member, .contact-info, .contact-form');
+            children.forEach((child, index) => {
+              setTimeout(() => {
+                child.classList.add('animate');
+              }, index * 200);
+            });
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+      }
+    );
+
+    sectionsRef.current.forEach((section) => {
+      if (section) {
+        observer.observe(section);
+      }
+    });
+
+    return () => {
+      sectionsRef.current.forEach((section) => {
+        if (section) {
+          observer.unobserve(section);
+        }
+      });
+    };
+  }, []);
+
+  const addToRefs = (el: HTMLElement) => {
+    if (el && !sectionsRef.current.includes(el)) {
+      sectionsRef.current.push(el);
+    }
+  };
+
   return (
     <div className="landing-bg">
       {/* Header */}
@@ -22,8 +66,10 @@ function App() {
           <img src="/logo.png" alt="Tendalgo Logo" className="logo" />
         </div>
         <nav className="nav">
-          <a href="#products">Products</a>
-          <a href="#services">Services</a>
+          <a href="#vision">Vision</a>
+          <a href="#market">Market</a>
+          <a href="#product">Product</a>
+          <a href="#team">Team</a>
           <a href="#contact">Contact</a>
         </nav>
       </header>
@@ -38,60 +84,159 @@ function App() {
 
       {/* Main Content */}
       <main className="main-content">
+        {/* Hero Section */}
         <section className="hero">
           <h1 className="brand-title">Tendalgo</h1>
-          <p className="brand-desc">Sleek, minimalistic gift boxes and bags for every occasion.</p>
-          <button className="primary-btn">Shop Now</button>
+          <p className="brand-desc">Revolutionizing Gift Packaging with Sustainable Innovation</p>
+          <div className="hero-stats">
+            <div className="stat-item">
+              <span className="stat-number">$2.5B</span>
+              <span className="stat-label">Market Size</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">85%</span>
+              <span className="stat-label">Growth Rate</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">100%</span>
+              <span className="stat-label">Sustainable</span>
+            </div>
+          </div>
+          <button className="shop-now-btn">Shop Now</button>
         </section>
 
-        <section id="products" className="section">
-          <h2>Our Products</h2>
-          <p>Discover our premium gift boxes and bags. Our products are designed with elegance and functionality in mind, perfect for any occasion. Whether you're looking for a simple gift box or a more elaborate packaging solution, we have something for everyone. Our gift boxes are made from high-quality materials, ensuring durability and a luxurious feel. Each box is crafted with attention to detail, making it a perfect choice for your gifting needs.</p>
-          <ul>
-            <li>Matte Black Gift Boxes</li>
-            <li>Color Magnetic Gift Bags</li>
-            <li>Customizable Packaging Solutions</li>
-          </ul>
-          <img src="https://via.placeholder.com/150" alt="Product Image" />
+        {/* Vision Section */}
+        <section id="vision" className="section" ref={addToRefs}>
+          <div className="section-content">
+            <h2>Our Vision</h2>
+            <p className="section-desc">Transforming the gift packaging industry through sustainable innovation and cutting-edge design. We're creating a future where luxury meets environmental responsibility.</p>
+            <div className="vision-cards">
+              <div className="vision-card">
+                <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3" alt="Sustainability" />
+                <h3>Sustainability</h3>
+                <p>100% recyclable materials and eco-friendly production processes</p>
+              </div>
+              <div className="vision-card">
+                <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3" alt="Innovation" />
+                <h3>Innovation</h3>
+                <p>Patented magnetic closure technology and smart packaging solutions</p>
+              </div>
+              <div className="vision-card">
+                <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3" alt="Quality" />
+                <h3>Quality</h3>
+                <p>Premium materials and meticulous craftsmanship in every product</p>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <section id="services" className="section">
-          <h2>Our Services</h2>
-          <p>Custom gift box and bag designs for events and celebrations. Our services are tailored to meet your specific needs, ensuring that your packaging stands out. We offer a range of customization options, from color and material to size and design. Our team of experts is dedicated to providing you with the best possible service, ensuring that your packaging is not only beautiful but also functional. Whether you're planning a corporate event or a personal celebration, we can help you create the perfect packaging solution.</p>
-          <ul>
-            <li>Event Packaging</li>
-            <li>Corporate Gifting</li>
-            <li>Personalized Designs</li>
-          </ul>
-          <img src="https://via.placeholder.com/150" alt="Service Image" />
+        {/* Market Section */}
+        <section id="market" className="section dark" ref={addToRefs}>
+          <div className="section-content">
+            <h2>Market Opportunity</h2>
+            <div className="market-grid">
+              <div className="market-info">
+                <h3>$2.5B Market Size</h3>
+                <p>The global gift packaging market is growing at 8.5% CAGR, driven by increasing demand for premium packaging solutions.</p>
+                <ul className="market-stats">
+                  <li>85% of consumers prefer sustainable packaging</li>
+                  <li>70% of purchase decisions influenced by packaging</li>
+                  <li>60% willing to pay premium for eco-friendly options</li>
+                </ul>
+              </div>
+              <div className="market-image">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3" alt="Market Growth" />
+              </div>
+            </div>
+          </div>
         </section>
 
-        <section id="about" className="section">
-          <h2>About Us</h2>
-          <p>We are dedicated to providing high-quality packaging solutions for all your gifting needs. Our mission is to create beautiful, functional, and sustainable packaging that enhances the gifting experience. We believe in the power of thoughtful packaging and strive to make every gift-giving moment special. Our team is passionate about design and innovation, constantly exploring new materials and techniques to improve our products. We are committed to sustainability and environmental responsibility, ensuring that our packaging is eco-friendly and recyclable.</p>
-          <ul>
-            <li>Quality Materials</li>
-            <li>Eco-Friendly Options</li>
-            <li>Customer Satisfaction</li>
-          </ul>
-          <img src="https://via.placeholder.com/150" alt="About Image" />
+        {/* Product Section */}
+        <section id="product" className="section" ref={addToRefs}>
+          <div className="section-content">
+            <h2>Our Product Line</h2>
+            <div className="product-showcase">
+              <div className="product-card">
+                <img src="https://images.unsplash.com/photo-1607083206968-13611e3d76db?ixlib=rb-4.0.3" alt="Premium Gift Box" />
+                <h3>Premium Gift Box</h3>
+                <p>Luxury magnetic closure boxes with customizable designs</p>
+                <ul>
+                  <li>Patented magnetic technology</li>
+                  <li>100% recyclable materials</li>
+                  <li>Custom branding options</li>
+                </ul>
+              </div>
+              <div className="product-card">
+                <img src="https://images.unsplash.com/photo-1607083206968-13611e3d76db?ixlib=rb-4.0.3" alt="Smart Gift Bag" />
+                <h3>Smart Gift Bag</h3>
+                <p>Innovative bags with integrated tracking and messaging</p>
+                <ul>
+                  <li>QR code integration</li>
+                  <li>Digital message cards</li>
+                  <li>Sustainable materials</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <section id="contact" className="section">
-          <h2>Contact Us</h2>
-          <p>Get in touch with us for custom orders and inquiries. We are here to help you with any questions or requests you may have. Our customer service team is available to assist you with product information, order placement, and any other concerns. We value your feedback and are always looking for ways to improve our products and services. Contact us today to learn more about how we can help you with your packaging needs.</p>
-          <ul>
-            <li>Email: info@tendalgo.com</li>
-            <li>Phone: (123) 456-7890</li>
-            <li>Address: 123 Gift Street, City, Country</li>
-          </ul>
-          <img src="https://via.placeholder.com/150" alt="Contact Image" />
+        {/* Team Section */}
+        <section id="team" className="section dark" ref={addToRefs}>
+          <div className="section-content">
+            <h2>Our Team</h2>
+            <div className="team-grid">
+              <div className="team-member">
+                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3" alt="CEO" />
+                <h3>John Doe</h3>
+                <p>CEO & Founder</p>
+                <p className="member-bio">15+ years in packaging industry, former VP at Amazon</p>
+              </div>
+              <div className="team-member">
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3" alt="CTO" />
+                <h3>Jane Smith</h3>
+                <p>CTO</p>
+                <p className="member-bio">Ex-Google engineer, 3 patents in smart packaging</p>
+              </div>
+              <div className="team-member">
+                <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3" alt="COO" />
+                <h3>Mike Johnson</h3>
+                <p>COO</p>
+                <p className="member-bio">20+ years in manufacturing, former Tesla executive</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Contact Section */}
+        <section id="contact" className="section" ref={addToRefs}>
+          <div className="section-content">
+            <h2>Get in Touch</h2>
+            <div className="contact-grid">
+              <div className="contact-info">
+                <h3>Investment Opportunities</h3>
+                <p>We're seeking strategic partners to help us revolutionize the gift packaging industry.</p>
+                <ul className="contact-details">
+                  <li>Email: investors@tendalgo.com</li>
+                  <li>Phone: (123) 456-7890</li>
+                  <li>Location: San Francisco, CA</li>
+                </ul>
+              </div>
+              <div className="contact-form">
+                <form>
+                  <input type="text" placeholder="Name" />
+                  <input type="email" placeholder="Email" />
+                  <textarea placeholder="Message"></textarea>
+                  <button type="submit" className="primary-btn">Send Message</button>
+                </form>
+              </div>
+            </div>
+          </div>
         </section>
       </main>
 
       {/* Footer */}
       <footer className="footer">
-        <p>&copy; 2023 Tendalgo. All rights reserved.</p>
+        <p>&copy; 2024 Tendalgo. All rights reserved.</p>
       </footer>
     </div>
   );
